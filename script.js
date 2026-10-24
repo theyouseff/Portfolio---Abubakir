@@ -83,5 +83,3 @@ document.querySelectorAll(".card").forEach((c, i) => {
   c.style.transitionDelay = `${i * 80}ms`;
   io.observe(c);
 });
-
-document.getElementById("year").textContent = new Date().getFullYear();

@@ -122,7 +122,7 @@ h1 span { color: var(--accent); }
 .cta {
   max-width: 1200px;
   margin: 96px auto 0;
-  padding: 0 24px;
+  padding: 0 24px 96px;
   text-align: center;
 }
 .cta p {
@@ -148,19 +148,6 @@ h1 span { color: var(--accent); }
 .cta-btn i { display: inline-block; font-style: normal; transition: transform .3s ease; }
 .cta-btn:hover, .cta-btn:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(200, 169, 106, .25); outline: none; }
 .cta-btn:hover i { transform: translateX(6px); }
-
-.footer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 72px 24px 48px;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 14px;
-}
-.footer a { color: var(--text); border-bottom: 1px solid var(--accent); }
 
 @media (max-width: 480px) {
   .hero { padding-top: 64px; }
