@@ -11,17 +11,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <nav class="topbar" aria-label="Til">
+    <div class="lang">
+      <button type="button" data-lang="uz">UZ</button>
+      <span>/</span>
+      <button type="button" data-lang="ru">RU</button>
+    </div>
+  </nav>
+
   <header class="hero">
-    <h1>3 kun ichida saytga kirgan trafficni <span>24/7</span> ariza qoldirishga va xarid qilishga undaydigan sotuv saytini yarating.</h1>
-    <p class="eyebrow">Portfolio</p>
-    <p class="tagline">Men qilgan ishlarim bilan tanishib chiqing!</p>
+    <h1 data-i18n="title"></h1>
+    <p class="eyebrow" data-i18n="eyebrow"></p>
+    <p class="tagline" data-i18n="tagline"></p>
   </header>
 
-  <main id="grid" class="grid" aria-label="Saytlar ro'yxati"></main>
+  <main id="grid" class="grid"></main>
 
   <section class="cta">
-    <p>Agar siz ham <span>SOVUQ TRAFFIC</span>ni 24/7 sotuv va ariza qoldirishga undaydigan saytingizni yaratmoqchi bo'lsangiz, men bilan bog'laning 👇</p>
-    <a class="cta-btn" href="https://t.me/AlishervichA" target="_blank" rel="noopener">Telegram orqali bog'lanish <i>→</i></a>
+    <p data-i18n="cta_text"></p>
+    <a class="cta-btn" href="https://t.me/AlishervichA" target="_blank" rel="noopener"><span data-i18n="cta_btn"></span> <i>→</i></a>
   </section>
 
   <script src="script.js"></script>
