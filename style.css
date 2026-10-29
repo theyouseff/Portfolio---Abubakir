@@ -176,6 +176,7 @@ h1 span { color: var(--accent); }
   text-transform: uppercase;
   transition: transform .3s ease, box-shadow .3s ease;
 }
+.hero-btn { margin-top: 36px; }
 .cta-btn i { display: inline-block; font-style: normal; transition: transform .3s ease; }
 .cta-btn:hover, .cta-btn:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(200, 169, 106, .25); outline: none; }
 .cta-btn:hover i { transform: translateX(6px); }
