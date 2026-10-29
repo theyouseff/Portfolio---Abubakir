@@ -11,14 +11,14 @@ const t = {
     b_make: "Maketni yasash",
     b_pages: "Nechta sahifali sayt kerak? (kamida 5 ta)",
     b_msg_pages: "Sahifalar soni",
-    r_pages: "Sahifalar yaratilmoqda: {n} / {total}",
+    r_pages: "{n} / {total}: «{name}» sahifasi yaratilmoqda…",
     r_pages_done: "{total} ta sahifa tayyor. Sahifalarni bosib ko'rishingiz mumkin.",
     l1: "Ranglar uyg'unlashtirilmoqda…",
     l2: "Sarlavha va matnlar yozilmoqda…",
     l3: "Bloklar joylashtirilmoqda…",
     l4: "Maket jonlantirilmoqda…",
     r_title: "Maketingiz tayyor",
-    r_note: "Bu taxminiy maket, javoblaringiz asosida avtomatik yig'ildi. Haqiqiy dizaynni men alohida, to'liq ishlab chiqaman.",
+    r_note: "Bu taxminiy maket: javoblaringiz asosida avtomatik yig'ildi, rasmlar va raqamlar namuna sifatida qo'yilgan. Haqiqiy dizaynni men alohida, to'liq ishlab chiqaman.",
     r_redo: "Qayta yasash",
     p_h: "{goal} — {niche} sohasida ishonchli tanlov",
     p_sub: "Tez natija, ishonchli sifat va shaxsiy yondashuv.",
@@ -55,14 +55,14 @@ const t = {
     b_make: "Создать макет",
     b_pages: "Сколько страниц нужно? (минимум 5)",
     b_msg_pages: "Количество страниц",
-    r_pages: "Создаём страницы: {n} / {total}",
+    r_pages: "{n} / {total}: создаём страницу «{name}»…",
     r_pages_done: "Готово страниц: {total}. Нажимайте на вкладки, чтобы посмотреть.",
     l1: "Подбираем цвета…",
     l2: "Пишем заголовок и тексты…",
     l3: "Размещаем блоки…",
     l4: "Оживляем макет…",
     r_title: "Ваш макет готов",
-    r_note: "Это примерный макет, собранный автоматически по вашим ответам. Настоящий дизайн я разработаю отдельно и полностью.",
+    r_note: "Это примерный макет, собранный автоматически по вашим ответам; изображения и цифры взяты для примера. Настоящий дизайн я разработаю отдельно и полностью.",
     r_redo: "Собрать заново",
     p_h: "{goal} — надёжный выбор в сфере «{niche}»",
     p_sub: "Быстрый результат, надёжное качество и личный подход.",
@@ -328,113 +328,192 @@ function makeTheme(ids) {
   return { bg, ink: inkOn(bg), accent, accentInk: inkOn(accent), card, cardInk: inkOn(card) };
 }
 
+// Soha aniqlash: yo'nalish va xizmat matni bo'yicha mos belgilar (rasm o'rnida) tanlanadi.
+const niches = [
+  { re: /stomat|tish|implant|shifokor|klinik|medits|tibb|doktor|davola|salomat|стомат|зуб|клиник|врач|медиц|лечен|здоров|dent|clinic|health/i, emo: ["🦷", "🩺", "😁", "💊", "🏥", "❤️"] },
+  { re: /ta.?lim|kurs|o.?quv|maktab|dars|ingliz|repetitor|universitet|trening|обуч|курс|школ|урок|образован|репетитор|edu|school|course/i, emo: ["🎓", "📚", "✏️", "🧠", "🏫", "💡"] },
+  { re: /marketing|smm|reklama|target|brend|kontent|instagram|trafik|traffic|obunachi|маркетинг|реклам|бренд|контент|подписчик|продвижен/i, emo: ["📈", "📣", "🎯", "📱", "💡", "🚀"] },
+  { re: /do.?kon|savdo|magazin|kiyim|market|shop|store|магазин|одежд|товар|торговл/i, emo: ["🛍️", "👗", "📦", "🏷️", "💳", "🎁"] },
+  { re: /restoran|kafe|oshxona|taom|ovqat|pitsa|pizza|qahva|choyxona|food|ресторан|кафе|еда|кофе|пицц|кухн/i, emo: ["🍽️", "🍕", "☕", "🥗", "🍰", "👨‍🍳"] },
+  { re: /go.?zallik|gozallik|salon|sartarosh|barber|kosmet|manikyur|beauty|красот|салон|барбер|космет|маникюр|парикмах/i, emo: ["💅", "💄", "✂️", "💆", "🧴", "✨"] },
+  { re: /qurilish|remont|ta.?mir|kvartira|ko.?chmas|interyer|dizayn|стро|ремонт|недвижим|квартир|интерьер|дизайн/i, emo: ["🏗️", "🏠", "🔨", "📐", "🛋️", "🔑"] },
+  { re: /avto|mashina|taksi|авто|машин|такси|шин/i, emo: ["🚗", "🔧", "🛞", "⛽", "🏁", "🚙"] },
+  { re: /fitnes|sport|trener|gym|yoga|фитнес|спорт|трен|йога/i, emo: ["🏋️", "🏃", "🥇", "💪", "🧘", "🥗"] },
+  { re: /dastur|sayt|web|ilova|kod|bot\b|программ|сайт|приложен|разработ|\bit\b/i, emo: ["💻", "🌐", "⚙️", "🚀", "📲", "🔐"] },
+  { re: /yurist|huquq|advokat|buxgalter|moliya|kredit|sugurta|юрист|право|адвокат|бухгалт|финанс|кредит|страхов/i, emo: ["⚖️", "💼", "📊", "🏛️", "💰", "📝"] },
+  { re: /sayohat|turizm|aviabilet|mehmonxona|путешеств|туризм|отел|тур\b|viza|visa/i, emo: ["✈️", "🌴", "🧳", "🗺️", "🏨", "📸"] },
+];
+const detectEmoji = (text) => (niches.find((n) => n.re.test(text)) || { emo: ["💼", "⭐", "🚀", "💡", "🤝", "🎯"] }).emo;
+
 // Sahifalar katalogi: tanlangan soniga qarab shu ro'yxatdan dastlabki N tasi olinadi.
-const pagesData = {
-  uz: [
-    { key: "home", name: "Bosh sahifa" },
-    { key: "services", name: "Xizmatlar", title: "Bizning xizmatlar", intro: "{goal} bo'yicha to'liq xizmatlar.", items: [["Maslahat", "Bepul dastlabki suhbat."], ["Asosiy xizmat", "{goal}."], ["Qo'llab-quvvatlash", "Natijadan keyin ham yoningizda."]] },
-    { key: "prices", name: "Narxlar", title: "Tariflar", intro: "Sizga mos tarifni tanlang.", items: [["Start", "Eng zarur imkoniyatlar."], ["Standart", "Ko'pchilik tanlaydigan variant."], ["Premium", "To'liq xizmat va ustuvorlik."]] },
-    { key: "about", name: "Biz haqimizda", title: "Biz haqimizda", intro: "{niche} sohasida ishonch bilan ishlaymiz.", items: [["Tajriba", "Yillar davomidagi amaliyot."], ["Yondashuv", "Har bir mijozga alohida e'tibor."], ["Natija", "Aniq va o'lchanadigan natija."]] },
-    { key: "contact", name: "Aloqa", title: "Biz bilan bog'laning", intro: "Ariza qoldiring, tez orada javob beramiz.", fields: ["Ismingiz", "Telefon raqamingiz"] },
-    { key: "portfolio", name: "Ishlar", title: "Bajarilgan ishlar", intro: "Mijozlar bilan qilgan loyihalar.", items: [["Loyiha 1", "Qisqa tavsif."], ["Loyiha 2", "Qisqa tavsif."], ["Loyiha 3", "Qisqa tavsif."]] },
-    { key: "reviews", name: "Sharhlar", title: "Mijozlar fikri", intro: "Biz bilan ishlaganlar nima deydi.", items: [["Mijoz 1", "“Natijadan juda mamnunman.”"], ["Mijoz 2", "“Tez va sifatli ishladi.”"], ["Mijoz 3", "“Tavsiya qilaman.”"]] },
-    { key: "faq", name: "Savollar", title: "Ko'p so'raladigan savollar", intro: "Eng muhim savollarga javoblar.", items: [["Qancha vaqt ketadi?", "Muddat loyihaga bog'liq."], ["Qanday boshlaymiz?", "Ariza qoldiring, bog'lanamiz."], ["Kafolat bormi?", "Ha, shartnomada belgilanadi."]] },
-    { key: "blog", name: "Blog", title: "Foydali maqolalar", intro: "{niche} haqida maslahatlar va yangiliklar.", items: [["Maqola 1", "Qisqa mazmun."], ["Maqola 2", "Qisqa mazmun."], ["Maqola 3", "Qisqa mazmun."]] },
-    { key: "team", name: "Jamoa", title: "Bizning jamoa", intro: "Ishini yaxshi biladigan mutaxassislar.", items: [["Mutaxassis 1", "Lavozim"], ["Mutaxassis 2", "Lavozim"], ["Mutaxassis 3", "Lavozim"]] },
-  ],
-  ru: [
-    { key: "home", name: "Главная" },
-    { key: "services", name: "Услуги", title: "Наши услуги", intro: "{goal}: полный комплекс услуг.", items: [["Консультация", "Бесплатный первичный разговор."], ["Основная услуга", "{goal}."], ["Поддержка", "Остаёмся рядом и после результата."]] },
-    { key: "prices", name: "Цены", title: "Тарифы", intro: "Выберите подходящий тариф.", items: [["Старт", "Самое необходимое."], ["Стандарт", "Выбор большинства."], ["Премиум", "Полный сервис и приоритет."]] },
-    { key: "about", name: "О нас", title: "О нас", intro: "Уверенно работаем в сфере «{niche}».", items: [["Опыт", "Годы практики."], ["Подход", "Внимание к каждому клиенту."], ["Результат", "Чёткий и измеримый итог."]] },
-    { key: "contact", name: "Контакты", title: "Свяжитесь с нами", intro: "Оставьте заявку, мы скоро ответим.", fields: ["Ваше имя", "Ваш телефон"] },
-    { key: "portfolio", name: "Работы", title: "Выполненные работы", intro: "Проекты, сделанные с клиентами.", items: [["Проект 1", "Краткое описание."], ["Проект 2", "Краткое описание."], ["Проект 3", "Краткое описание."]] },
-    { key: "reviews", name: "Отзывы", title: "Мнение клиентов", intro: "Что говорят те, кто с нами работал.", items: [["Клиент 1", "«Очень доволен результатом.»"], ["Клиент 2", "«Быстро и качественно.»"], ["Клиент 3", "«Рекомендую.»"]] },
-    { key: "faq", name: "Вопросы", title: "Частые вопросы", intro: "Ответы на самые важные вопросы.", items: [["Сколько это займёт?", "Срок зависит от проекта."], ["С чего начнём?", "Оставьте заявку, мы свяжемся."], ["Есть ли гарантия?", "Да, фиксируется в договоре."]] },
-    { key: "blog", name: "Блог", title: "Полезные статьи", intro: "Советы и новости: {niche}.", items: [["Статья 1", "Краткое содержание."], ["Статья 2", "Краткое содержание."], ["Статья 3", "Краткое содержание."]] },
-    { key: "team", name: "Команда", title: "Наша команда", intro: "Специалисты, которые знают своё дело.", items: [["Специалист 1", "Должность"], ["Специалист 2", "Должность"], ["Специалист 3", "Должность"]] },
-  ],
+const siteData = {
+  uz: {
+    ui: {
+      more: "Batafsil", read: "O'qish", popular: "Mashhur", price: "Narx kelishiladi", project: "Loyiha", msg: "Xabaringiz",
+      stats: [["500+", "Mijoz"], ["10+", "Yil tajriba"], ["24/7", "Aloqa"]],
+      f1: "Sifat kafolati", f2: "Tez javob",
+      quote: "“Natijadan juda mamnunman, hammasi tez va aniq bo'ldi.”", quoteBy: "Mijoz",
+      band: "Bugun boshlang: birinchi qadam bepul",
+      feats: [["Asosiy imkoniyatlar", "Qo'llab-quvvatlash", "Oylik hisobot"], ["Start'dagi hammasi", "Ustuvor aloqa", "Haftalik hisobot"], ["Standart'dagi hammasi", "Shaxsiy menejer", "24/7 yordam"]],
+      address: "📍 Shahar, ko'cha, uy", phone: "📞 +998 00 000 00 00", hours: "🕘 Du–Sha: 09:00–18:00",
+      dates: ["12.01", "03.02", "21.03"],
+    },
+    pages: [
+      { key: "home", name: "Bosh sahifa" },
+      { key: "services", type: "cards", name: "Xizmatlar", title: "Bizning xizmatlar", intro: "{goal} bo'yicha to'liq xizmatlar.", items: [["Maslahat", "Bepul dastlabki suhbat."], ["Asosiy xizmat", "{goal}."], ["Qo'llab-quvvatlash", "Natijadan keyin ham yoningizda."], ["Monitoring", "Jarayon doim nazoratda."], ["Hisobot", "Aniq raqamlar va xulosalar."], ["Kafolat", "Shartnomada belgilanadi."]] },
+      { key: "prices", type: "tiers", name: "Narxlar", title: "Tariflar", intro: "Sizga mos tarifni tanlang.", items: [["Start", "Eng zarur imkoniyatlar."], ["Standart", "Ko'pchilik tanlaydigan variant."], ["Premium", "To'liq xizmat va ustuvorlik."]] },
+      { key: "about", type: "about", name: "Biz haqimizda", title: "Biz haqimizda", intro: "{niche} sohasida ishonch bilan ishlaymiz.", items: [["Tajriba", "Yillar davomidagi amaliyot."], ["Yondashuv", "Har bir mijozga alohida e'tibor."], ["Natija", "Aniq va o'lchanadigan natija."]] },
+      { key: "contact", type: "contact", name: "Aloqa", title: "Biz bilan bog'laning", intro: "Ariza qoldiring, tez orada javob beramiz.", fields: ["Ismingiz", "Telefon raqamingiz"] },
+      { key: "portfolio", type: "gallery", name: "Ishlar", title: "Bajarilgan ishlar", intro: "Mijozlar bilan qilgan loyihalar." },
+      { key: "reviews", type: "reviews", name: "Sharhlar", title: "Mijozlar fikri", intro: "Biz bilan ishlaganlar nima deydi.", items: [["Mijoz 1", "“Natijadan juda mamnunman.”"], ["Mijoz 2", "“Tez va sifatli ishladi.”"], ["Mijoz 3", "“Tavsiya qilaman.”"]] },
+      { key: "faq", type: "faq", name: "Savollar", title: "Ko'p so'raladigan savollar", intro: "Eng muhim savollarga javoblar.", items: [["Qancha vaqt ketadi?", "Muddat loyihaga bog'liq, odatda bir necha kun."], ["Qanday boshlaymiz?", "Ariza qoldiring, biz siz bilan bog'lanamiz."], ["Kafolat bormi?", "Ha, shartnomada aniq belgilanadi."], ["To'lov qanday?", "Qulay va shaffof to'lov shartlari."]] },
+      { key: "blog", type: "blog", name: "Blog", title: "Foydali maqolalar", intro: "{niche} haqida maslahatlar va yangiliklar.", items: [["Maqola sarlavhasi 1", "Maqolaning qisqa mazmuni shu yerda."], ["Maqola sarlavhasi 2", "Maqolaning qisqa mazmuni shu yerda."], ["Maqola sarlavhasi 3", "Maqolaning qisqa mazmuni shu yerda."]] },
+      { key: "team", type: "team", name: "Jamoa", title: "Bizning jamoa", intro: "Ishini yaxshi biladigan mutaxassislar.", items: [["Mutaxassis 1", "Yetakchi mutaxassis"], ["Mutaxassis 2", "Menejer"], ["Mutaxassis 3", "Maslahatchi"]] },
+    ],
+  },
+  ru: {
+    ui: {
+      more: "Подробнее", read: "Читать", popular: "Популярный", price: "Цена по запросу", project: "Проект", msg: "Ваше сообщение",
+      stats: [["500+", "Клиентов"], ["10+", "Лет опыта"], ["24/7", "На связи"]],
+      f1: "Гарантия качества", f2: "Быстрый ответ",
+      quote: "«Очень доволен результатом, всё быстро и чётко.»", quoteBy: "Клиент",
+      band: "Начните сегодня: первый шаг бесплатно",
+      feats: [["Основные возможности", "Поддержка", "Ежемесячный отчёт"], ["Всё из тарифа Старт", "Приоритетная связь", "Еженедельный отчёт"], ["Всё из тарифа Стандарт", "Личный менеджер", "Поддержка 24/7"]],
+      address: "📍 Город, улица, дом", phone: "📞 +998 00 000 00 00", hours: "🕘 Пн–Сб: 09:00–18:00",
+      dates: ["12.01", "03.02", "21.03"],
+    },
+    pages: [
+      { key: "home", name: "Главная" },
+      { key: "services", type: "cards", name: "Услуги", title: "Наши услуги", intro: "{goal}: полный комплекс услуг.", items: [["Консультация", "Бесплатный первичный разговор."], ["Основная услуга", "{goal}."], ["Поддержка", "Остаёмся рядом и после результата."], ["Мониторинг", "Процесс всегда под контролем."], ["Отчётность", "Точные цифры и выводы."], ["Гарантия", "Фиксируется в договоре."]] },
+      { key: "prices", type: "tiers", name: "Цены", title: "Тарифы", intro: "Выберите подходящий тариф.", items: [["Старт", "Самое необходимое."], ["Стандарт", "Выбор большинства."], ["Премиум", "Полный сервис и приоритет."]] },
+      { key: "about", type: "about", name: "О нас", title: "О нас", intro: "Уверенно работаем в сфере «{niche}».", items: [["Опыт", "Годы практики."], ["Подход", "Внимание к каждому клиенту."], ["Результат", "Чёткий и измеримый итог."]] },
+      { key: "contact", type: "contact", name: "Контакты", title: "Свяжитесь с нами", intro: "Оставьте заявку, мы скоро ответим.", fields: ["Ваше имя", "Ваш телефон"] },
+      { key: "portfolio", type: "gallery", name: "Работы", title: "Выполненные работы", intro: "Проекты, сделанные с клиентами." },
+      { key: "reviews", type: "reviews", name: "Отзывы", title: "Мнение клиентов", intro: "Что говорят те, кто с нами работал.", items: [["Клиент 1", "«Очень доволен результатом.»"], ["Клиент 2", "«Быстро и качественно.»"], ["Клиент 3", "«Рекомендую.»"]] },
+      { key: "faq", type: "faq", name: "Вопросы", title: "Частые вопросы", intro: "Ответы на самые важные вопросы.", items: [["Сколько это займёт?", "Срок зависит от проекта, обычно несколько дней."], ["С чего начнём?", "Оставьте заявку, мы свяжемся с вами."], ["Есть ли гарантия?", "Да, она чётко фиксируется в договоре."], ["Как оплатить?", "Удобные и прозрачные условия оплаты."]] },
+      { key: "blog", type: "blog", name: "Блог", title: "Полезные статьи", intro: "Советы и новости: {niche}.", items: [["Заголовок статьи 1", "Краткое содержание статьи здесь."], ["Заголовок статьи 2", "Краткое содержание статьи здесь."], ["Заголовок статьи 3", "Краткое содержание статьи здесь."]] },
+      { key: "team", type: "team", name: "Команда", title: "Наша команда", intro: "Специалисты, которые знают своё дело.", items: [["Специалист 1", "Ведущий специалист"], ["Специалист 2", "Менеджер"], ["Специалист 3", "Консультант"]] },
+    ],
+  },
 };
 
 async function buildMock(id, brief) {
   const tr = t[currentLang];
   const th = makeTheme(brief.ids);
-  const pages = pagesData[currentLang].slice(0, brief.pages);
+  const { ui, pages: allPages } = siteData[currentLang];
+  const pages = allPages.slice(0, brief.pages);
+  const emo = detectEmoji(`${brief.niche} ${brief.goal}`);
   const fill = (s) => esc(cap(s.replace("{goal}", brief.goal).replace("{niche}", brief.niche)));
   const brand = esc(cap(brief.niche));
   const heading = tr.p_h.replace("{goal}", cap(brief.goal)).replace("{niche}", brief.niche);
   const status = document.getElementById("pages-status");
-  const setStatus = (n) => { status.textContent = tr.r_pages.replace("{n}", n).replace("{total}", pages.length); };
 
-  const pageBody = (p) => p.fields
-    ? `<h3 class="m-h2">${fill(p.title)}</h3><p class="m-p">${fill(p.intro)}</p>
-       <div class="m-form">${p.fields.map((x) => `<div class="m-field">${esc(x)}</div>`).join("")}<span class="m-btn">${tr.p_cta}</span></div>`
-    : `<h3 class="m-h2">${fill(p.title)}</h3><p class="m-p">${fill(p.intro)}</p>
-       <div class="m-cards">${p.items.map(([a, b]) => `<div class="m-card"><b>${fill(a)}</b><p>${fill(b)}</p></div>`).join("")}</div>`;
+  // Rasm o'rnida: rang sxemasidagi illyustratsiya plitkasi + sohaga mos belgi
+  const art = (i, size, e) => `<div class="m-art ${size}" style="--ang:${(i * 47 + 25) % 360}deg"><span class="blob b1"></span><span class="blob b2"></span><span class="emo">${e || emo[i % emo.length]}</span></div>`;
+  const head = (p) => `<header class="m-head m-in"><span class="m-chip"><i></i>${esc(p.name)}</span><h3 class="m-h2">${fill(p.title)}</h3><p class="m-p">${fill(p.intro)}</p></header>`;
+  const stats = () => `<div class="m-stats m-in">${ui.stats.map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join("")}</div>`;
+  const btn = (ghost, text) => `<span class="m-btn${ghost ? " ghost" : ""}">${text}</span>`;
+
+  const render = {
+    home: () => `
+      <div class="m-hero">
+        <div class="m-hero-l">
+          <span class="m-chip m-in"><i></i>${brand}</span>
+          <h3 class="m-h"></h3>
+          <p class="m-p m-in">${tr.p_sub}</p>
+          <div class="m-btns m-in">${btn(false, tr.p_cta)}${btn(true, ui.more)}</div>
+          ${stats()}
+        </div>
+        <div class="m-hero-r m-in">
+          ${art(0, "hero")}
+          <span class="m-float f1">${emo[1]} ${ui.f1}</span>
+          <span class="m-float f2">${emo[2]} ${ui.f2}</span>
+        </div>
+      </div>
+      <div class="m-grid g3">
+        ${[1, 2, 3].map((n) => `<article class="m-tile m-in"><div class="m-icon">${emo[n + 2]}</div><div class="m-tile-b"><b>${tr["p_f" + n + "t"]}</b><p>${tr["p_f" + n]}</p></div></article>`).join("")}
+      </div>
+      <div class="m-gallery">
+        ${[1, 2, 3].map((n) => `<div class="m-in">${art(n + 1, "md")}</div>`).join("")}
+      </div>
+      <section class="m-quote m-in"><span class="m-stars">★★★★★</span><p>${ui.quote}</p><b>${ui.quoteBy}</b></section>
+      <section class="m-band m-in"><h4>${ui.band}</h4>${btn(false, tr.p_cta)}</section>`,
+    cards: (p) => `${head(p)}<div class="m-grid g3">${p.items.map(([a, b], i) => `<article class="m-tile m-in">${art(i, "md")}<div class="m-tile-b"><b>${fill(a)}</b><p>${fill(b)}</p><span class="m-link">${ui.more} →</span></div></article>`).join("")}</div>`,
+    tiers: (p) => `${head(p)}<div class="m-grid g3">${p.items.map(([a, b], i) => `<article class="m-tier m-in${i === 1 ? " pop" : ""}">${i === 1 ? `<span class="m-badge">${ui.popular}</span>` : ""}<b>${fill(a)}</b><p>${fill(b)}</p><div class="m-price">${ui.price}</div><ul>${ui.feats[i].map((x) => `<li>${esc(x)}</li>`).join("")}</ul>${btn(i !== 1, tr.p_cta)}</article>`).join("")}</div>`,
+    about: (p) => `${head(p)}<div class="m-about"><div class="m-in">${art(1, "xl")}</div><div class="m-about-r"><ul class="m-checks">${p.items.map(([a, b]) => `<li class="m-in"><b>${fill(a)}</b><span>${fill(b)}</span></li>`).join("")}</ul>${stats()}</div></div>`,
+    contact: (p) => `${head(p)}<div class="m-contact"><div class="m-form m-in">${p.fields.map((f) => `<div class="m-field">${esc(f)}</div>`).join("")}<div class="m-field tall">${ui.msg}</div>${btn(false, tr.p_cta)}</div><div class="m-info m-in">${art(5, "md")}<p>${ui.address}</p><p>${ui.phone}</p><p>${ui.hours}</p></div></div>`,
+    gallery: (p) => `${head(p)}<div class="m-grid g3">${[0, 1, 2, 3, 4, 5].map((i) => `<figure class="m-shot m-in">${art(i, "md")}<figcaption>${ui.project} ${i + 1}</figcaption></figure>`).join("")}</div>`,
+    reviews: (p) => `${head(p)}<div class="m-grid g3">${p.items.map(([a, b], i) => `<article class="m-tile m-review m-in"><span class="m-stars">★★★★★</span><p>${fill(b)}</p><div class="m-who"><span class="m-ava">${esc(a.charAt(0))}</span><b>${fill(a)}</b></div></article>`).join("")}</div>`,
+    faq: (p) => `${head(p)}<div class="m-faq">${p.items.map(([q, a], i) => `<div class="m-qa m-in${i === 0 ? " open" : ""}"><div class="m-q"><b>${fill(q)}</b><span>${i === 0 ? "−" : "+"}</span></div>${i === 0 ? `<p>${fill(a)}</p>` : ""}</div>`).join("")}</div>`,
+    blog: (p) => `${head(p)}<div class="m-grid g3">${p.items.map(([a, b], i) => `<article class="m-tile m-in">${art(i + 2, "md")}<div class="m-tile-b"><span class="m-date">${ui.dates[i]}</span><b>${fill(a)}</b><p>${fill(b)}</p><span class="m-link">${ui.read} →</span></div></article>`).join("")}</div>`,
+    team: (p) => `${head(p)}<div class="m-grid g3">${p.items.map(([a, b], i) => `<article class="m-tile m-person m-in">${art(i, "ava", ["👩‍💼", "👨‍💼", "🧑‍💻"][i])}<b>${fill(a)}</b><p>${fill(b)}</p></article>`).join("")}</div>`,
+  };
 
   mock.className = "mock";
+  mock.scrollTop = 0;
   mock.style.cssText = `--bg:${th.bg};--ink:${th.ink};--accent:${th.accent};--accent-ink:${th.accentInk};--card:${th.card};--card-ink:${th.cardInk}`;
   mock.innerHTML = `
-    <div class="m-nav m-in"><b>${brand}</b></div>
-    <div class="m-tabs" role="tablist">
-      ${pages.map((p) => `<button type="button" class="m-tab" role="tab" data-page="${p.key}">${esc(p.name)}</button>`).join("")}
+    <div class="m-top">
+      <div class="m-nav"><b><span class="m-logo">${emo[0]}</span>${brand}</b>${btn(false, tr.p_cta)}</div>
+      <div class="m-tabs" role="tablist">
+        ${pages.map((p) => `<button type="button" class="m-tab" role="tab" data-page="${p.key}">${esc(p.name)}</button>`).join("")}
+      </div>
     </div>
-    <section class="m-page" data-page="home">
-      <div class="m-hero">
-        <h3 class="m-h"></h3>
-        <p class="m-p m-in">${tr.p_sub}</p>
-        <span class="m-btn m-in">${tr.p_cta}</span>
-      </div>
-      <div class="m-cards">
-        ${[1, 2, 3].map((n) => `<div class="m-card m-in"><b>${tr["p_f" + n + "t"]}</b><p>${tr["p_f" + n]}</p></div>`).join("")}
-      </div>
-    </section>
-    ${pages.slice(1).map((p) => `<section class="m-page" data-page="${p.key}" hidden>${pageBody(p)}</section>`).join("")}
-    <div class="m-foot m-in">© ${brand}</div>`;
+    ${pages.map((p) => `<section class="m-page" data-page="${p.key}" hidden>${p.key === "home" ? render.home() : render[p.type](p)}</section>`).join("")}
+    <footer class="m-footer"><b>${emo[0]} ${brand}</b><span>${pages.map((p) => esc(p.name)).join(" · ")}</span><small>© ${brand}</small></footer>`;
 
-  const show = async (sel, ms) => {
-    for (const el of mock.querySelectorAll(sel)) {
+  const tabs = [...mock.querySelectorAll(".m-tab")];
+  const sections = [...mock.querySelectorAll(".m-page")];
+  const activate = (i) => {
+    tabs.forEach((x, k) => x.classList.toggle("active", k === i));
+    sections.forEach((s, k) => { s.hidden = k !== i; });
+    mock.scrollTop = 0;
+  };
+  const follow = (el) => {
+    const r = el.getBoundingClientRect();
+    const m = mock.getBoundingClientRect();
+    if (r.bottom > m.bottom - 16) mock.scrollBy({ top: r.bottom - m.bottom + 80, behavior: "smooth" });
+  };
+  const reveal = async (root, ms) => {
+    for (const el of root.querySelectorAll(".m-in")) {
       if (id !== buildId) return false;
       el.classList.add("on");
+      follow(el);
       await sleep(ms);
     }
     return id === buildId;
   };
 
-  setStatus(0);
-  if (!(await show(".m-nav", 400))) return;
-
-  // Sahifalar birma-bir yaratiladi
-  const tabs = [...mock.querySelectorAll(".m-tab")];
-  for (let i = 0; i < tabs.length; i++) {
+  // Sahifalar birma-bir yaratiladi: tab chiqadi, sahifa ochiladi, bloklar yig'iladi
+  for (let i = 0; i < pages.length; i++) {
     if (id !== buildId) return;
     tabs[i].classList.add("on");
-    setStatus(i + 1);
-    await sleep(380);
-  }
-  tabs[0].classList.add("active");
+    activate(i);
+    status.textContent = tr.r_pages.replace("{name}", pages[i].name).replace("{n}", i + 1).replace("{total}", pages.length);
+    await sleep(350);
 
-  // Bosh sahifa jonli yoziladi
-  const h = mock.querySelector(".m-h");
-  for (let i = 1; i <= heading.length; i++) {
-    if (id !== buildId) return;
-    h.textContent = heading.slice(0, i);
-    await sleep(28);
+    if (i === 0) {
+      const h = sections[0].querySelector(".m-h");
+      const chip = sections[0].querySelector(".m-chip");
+      chip.classList.add("on");
+      for (let k = 1; k <= heading.length; k++) {
+        if (id !== buildId) return;
+        h.textContent = heading.slice(0, k);
+        await sleep(26);
+      }
+    }
+    if (!(await reveal(sections[i], 210))) return;
+    await sleep(250);
   }
-  if (!(await show("[data-page=home] .m-p", 350))) return;
-  if (!(await show("[data-page=home] .m-btn", 400))) return;
-  if (!(await show("[data-page=home] .m-card", 300))) return;
-  if (!(await show(".m-foot", 0))) return;
 
+  activate(0);
   status.textContent = tr.r_pages_done.replace("{total}", pages.length);
   mock.classList.add("ready");
-  tabs.forEach((tab) => tab.addEventListener("click", () => {
-    tabs.forEach((x) => x.classList.toggle("active", x === tab));
-    mock.querySelectorAll(".m-page").forEach((s) => {
-      const on = s.dataset.page === tab.dataset.page;
-      s.hidden = !on;
-      if (on) { s.classList.remove("fresh"); void s.offsetWidth; s.classList.add("fresh"); }
-    });
+  tabs.forEach((tab, i) => tab.addEventListener("click", () => {
+    activate(i);
+    sections[i].classList.remove("fresh");
+    void sections[i].offsetWidth;
+    sections[i].classList.add("fresh");
   }));
 }
 
