@@ -5,6 +5,22 @@ const t = {
     eyebrow: "Portfolio",
     tagline: "Men qilgan ishlarim bilan tanishib chiqing!",
     hero_btn: "Saytingiz maketini yasang!",
+    b_title: "Saytingiz maketini yasaymiz",
+    b_sub: "Bir necha savolga javob bering, men siz bilan bog'lanaman.",
+    b_colors: "Sayt ranglari (kamida 3 ta)",
+    b_colors_hint: "Tanlandi: {n} / kamida 3",
+    b_niche: "Yo'nalish",
+    b_niche_ph: "Masalan: stomatologiya, ta'lim, onlayn do'kon",
+    b_goal: "Nima sotasiz yoki qanday xizmat uchun?",
+    b_goal_ph: "Masalan: implantatsiya xizmati, onlayn kurs...",
+    b_send: "Telegramga yuborish",
+    b_err_colors: "Kamida 3 ta rang tanlang.",
+    b_err_fields: "Yo'nalish va xizmat/mahsulot maydonlarini to'ldiring.",
+    b_done: "Javoblaringiz nusxalandi va Telegram ochildi. Xabar yozilmagan bo'lsa, uni yopishtirib yuboring.",
+    b_msg_head: "Salom! Sayt maketini buyurtma qilmoqchiman.",
+    b_msg_colors: "Ranglar",
+    b_msg_niche: "Yo'nalish",
+    b_msg_goal: "Nima sotish / qanday xizmat",
     cta_text: `Agar siz ham <span>SOVUQ TRAFFIC</span>ni 24/7 sotuv va ariza qoldirishga undaydigan saytingizni yaratmoqchi bo'lsangiz, men bilan bog'laning 👇`,
     cta_btn: "Telegram orqali bog'lanish",
     open_site: "Saytni ochish",
@@ -15,6 +31,22 @@ const t = {
     eyebrow: "Портфолио",
     tagline: "Познакомьтесь с моими работами!",
     hero_btn: "Закажите макет вашего сайта!",
+    b_title: "Сделаем макет вашего сайта",
+    b_sub: "Ответьте на несколько вопросов, и я свяжусь с вами.",
+    b_colors: "Цвета сайта (минимум 3)",
+    b_colors_hint: "Выбрано: {n} / минимум 3",
+    b_niche: "Направление",
+    b_niche_ph: "Например: стоматология, образование, интернет-магазин",
+    b_goal: "Что продаёте или для какой услуги?",
+    b_goal_ph: "Например: услуга имплантации, онлайн-курс...",
+    b_send: "Отправить в Telegram",
+    b_err_colors: "Выберите минимум 3 цвета.",
+    b_err_fields: "Заполните направление и продукт/услугу.",
+    b_done: "Ответы скопированы, Telegram открыт. Если сообщение не появилось, вставьте его и отправьте.",
+    b_msg_head: "Здравствуйте! Хочу заказать макет сайта.",
+    b_msg_colors: "Цвета",
+    b_msg_niche: "Направление",
+    b_msg_goal: "Что продаём / какая услуга",
     cta_text: `Если вы тоже хотите сайт, который превращает <span>ХОЛОДНЫЙ ТРАФИК</span> в продажи и заявки 24/7, свяжитесь со мной 👇`,
     cta_btn: "Связаться через Telegram",
     open_site: "Открыть сайт",
@@ -138,9 +170,97 @@ function setLang(lang, animate) {
   document.querySelectorAll(".lang button").forEach((b) => {
     b.classList.toggle("active", b.dataset.lang === lang);
   });
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+    el.placeholder = t[lang][el.dataset.i18nPh];
+  });
   renderCards(lang, animate);
+  renderSwatches(lang);
   try { localStorage.setItem("lang", lang); } catch {}
 }
+
+// Anketa (maket buyurtmasi)
+const palette = [
+  { id: "black", hex: "#111111", uz: "Qora", ru: "Чёрный" },
+  { id: "white", hex: "#f4f3ee", uz: "Oq", ru: "Белый" },
+  { id: "gold", hex: "#c8a96a", uz: "Oltin", ru: "Золотой" },
+  { id: "blue", hex: "#2f6fed", uz: "Ko'k", ru: "Синий" },
+  { id: "teal", hex: "#1fb5b5", uz: "Moviy", ru: "Бирюзовый" },
+  { id: "green", hex: "#2e9e6b", uz: "Yashil", ru: "Зелёный" },
+  { id: "red", hex: "#e04545", uz: "Qizil", ru: "Красный" },
+  { id: "orange", hex: "#f08a24", uz: "To'q sariq", ru: "Оранжевый" },
+  { id: "pink", hex: "#e86aa6", uz: "Pushti", ru: "Розовый" },
+  { id: "purple", hex: "#7a4fe0", uz: "Binafsha", ru: "Фиолетовый" },
+  { id: "brown", hex: "#8a5a3c", uz: "Jigarrang", ru: "Коричневый" },
+  { id: "gray", hex: "#8d8c87", uz: "Kulrang", ru: "Серый" },
+];
+const MIN_COLORS = 3;
+const selected = new Set();
+
+const dialog = document.getElementById("brief");
+const form = document.getElementById("brief-form");
+const swatchBox = document.getElementById("swatches");
+const colorHint = document.getElementById("color-hint");
+const briefMsg = document.getElementById("brief-msg");
+let currentLang = "uz";
+
+function updateHint() {
+  colorHint.textContent = t[currentLang].b_colors_hint.replace("{n}", selected.size);
+}
+
+function renderSwatches(lang) {
+  currentLang = lang;
+  swatchBox.textContent = "";
+  for (const c of palette) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "swatch";
+    b.style.setProperty("--c", c.hex);
+    b.title = c[lang];
+    b.setAttribute("aria-label", c[lang]);
+    b.setAttribute("aria-pressed", selected.has(c.id));
+    b.innerHTML = `<i></i><span>${c[lang]}</span>`;
+    b.addEventListener("click", () => {
+      selected.has(c.id) ? selected.delete(c.id) : selected.add(c.id);
+      b.setAttribute("aria-pressed", selected.has(c.id));
+      briefMsg.textContent = "";
+      updateHint();
+    });
+    swatchBox.appendChild(b);
+  }
+  updateHint();
+}
+
+function openBrief() {
+  briefMsg.textContent = "";
+  briefMsg.classList.remove("ok");
+  dialog.showModal();
+  document.body.classList.add("lock");
+}
+const closeBrief = () => dialog.close();
+
+document.getElementById("open-brief").addEventListener("click", openBrief);
+document.getElementById("brief-close").addEventListener("click", closeBrief);
+dialog.addEventListener("click", (e) => { if (e.target === dialog) closeBrief(); });
+dialog.addEventListener("close", () => document.body.classList.remove("lock"));
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const tr = t[currentLang];
+  const niche = document.getElementById("niche").value.trim();
+  const goal = document.getElementById("goal").value.trim();
+  briefMsg.classList.remove("ok");
+  if (selected.size < MIN_COLORS) { briefMsg.textContent = tr.b_err_colors; return; }
+  if (!niche || !goal) { briefMsg.textContent = tr.b_err_fields; return; }
+
+  const colors = palette.filter((c) => selected.has(c.id)).map((c) => c[currentLang]).join(", ");
+  const text = `${tr.b_msg_head}\n\n${tr.b_msg_colors}: ${colors}\n${tr.b_msg_niche}: ${niche}\n${tr.b_msg_goal}: ${goal}`;
+
+  // Telegram brauzer oynasini darhol (bosish paytida) ochamiz, matnni esa buferga nusxalaymiz.
+  window.open(`https://t.me/AlishervichA?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  navigator.clipboard?.writeText(text).catch(() => {});
+  briefMsg.textContent = tr.b_done;
+  briefMsg.classList.add("ok");
+});
 
 document.querySelectorAll(".lang button").forEach((b) => {
   b.addEventListener("click", () => setLang(b.dataset.lang, false));

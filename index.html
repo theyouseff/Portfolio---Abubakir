@@ -23,7 +23,7 @@
     <h1 data-i18n="title"></h1>
     <p class="eyebrow" data-i18n="eyebrow"></p>
     <p class="tagline" data-i18n="tagline"></p>
-    <a class="cta-btn hero-btn" href="https://t.me/AlishervichA" target="_blank" rel="noopener"><span data-i18n="hero_btn"></span> <i>→</i></a>
+    <button type="button" class="cta-btn hero-btn" id="open-brief"><span data-i18n="hero_btn"></span> <i>→</i></button>
   </header>
 
   <main id="grid" class="grid"></main>
@@ -32,6 +32,33 @@
     <p data-i18n="cta_text"></p>
     <a class="cta-btn" href="https://t.me/AlishervichA" target="_blank" rel="noopener"><span data-i18n="cta_btn"></span> <i>→</i></a>
   </section>
+
+  <dialog id="brief" class="brief" aria-labelledby="brief-title">
+    <form id="brief-form" novalidate>
+      <button type="button" class="brief-close" id="brief-close" aria-label="×">×</button>
+      <h2 id="brief-title" data-i18n="b_title"></h2>
+      <p class="brief-sub" data-i18n="b_sub"></p>
+
+      <fieldset>
+        <legend data-i18n="b_colors"></legend>
+        <div class="swatches" id="swatches"></div>
+        <p class="hint" id="color-hint"></p>
+      </fieldset>
+
+      <label class="field">
+        <span data-i18n="b_niche"></span>
+        <input id="niche" type="text" autocomplete="off" data-i18n-ph="b_niche_ph">
+      </label>
+
+      <label class="field">
+        <span data-i18n="b_goal"></span>
+        <textarea id="goal" rows="3" data-i18n-ph="b_goal_ph"></textarea>
+      </label>
+
+      <p class="brief-msg" id="brief-msg" role="alert"></p>
+      <button type="submit" class="cta-btn" data-i18n="b_send"></button>
+    </form>
+  </dialog>
 
   <script src="script.js"></script>
 </body>
