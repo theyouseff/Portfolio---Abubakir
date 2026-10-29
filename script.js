@@ -7,7 +7,22 @@ const t = {
     hero_btn: "Saytingiz maketini yasang!",
     b_title: "Saytingiz maketini yasaymiz",
     b_sub: "Bir necha savolga javob bering, men siz bilan bog'lanaman.",
-    b_colors: "Sayt ranglari (kamida 3 ta)",
+    b_colors: "Sayt ranglari (kamida 3 ta, birinchisi — asosiy fon)",
+    b_make: "Maketni yasash",
+    l1: "Ranglar uyg'unlashtirilmoqda…",
+    l2: "Sarlavha va matnlar yozilmoqda…",
+    l3: "Bloklar joylashtirilmoqda…",
+    l4: "Maket jonlantirilmoqda…",
+    r_title: "Maketingiz tayyor",
+    r_note: "Bu taxminiy maket, javoblaringiz asosida avtomatik yig'ildi. Haqiqiy dizaynni men alohida, to'liq ishlab chiqaman.",
+    r_redo: "Qayta yasash",
+    p_n1: "Xizmatlar", p_n2: "Narxlar", p_n3: "Aloqa",
+    p_h: "{goal} — {niche} sohasida ishonchli tanlov",
+    p_sub: "Tez natija, ishonchli sifat va shaxsiy yondashuv.",
+    p_cta: "Ariza qoldirish",
+    p_f1t: "Tez natija", p_f1: "Qisqa vaqtda ko'rinadigan o'zgarish.",
+    p_f2t: "Ishonchli sifat", p_f2: "Har bir bosqich nazorat ostida.",
+    p_f3t: "Qulay narx", p_f3: "Hamyonbop va shaffof shartlar.",
     b_colors_hint: "Tanlandi: {n} / kamida 3",
     b_niche: "Yo'nalish",
     b_niche_ph: "Masalan: stomatologiya, ta'lim, onlayn do'kon",
@@ -33,7 +48,22 @@ const t = {
     hero_btn: "Закажите макет вашего сайта!",
     b_title: "Сделаем макет вашего сайта",
     b_sub: "Ответьте на несколько вопросов, и я свяжусь с вами.",
-    b_colors: "Цвета сайта (минимум 3)",
+    b_colors: "Цвета сайта (минимум 3, первый — основной фон)",
+    b_make: "Создать макет",
+    l1: "Подбираем цвета…",
+    l2: "Пишем заголовок и тексты…",
+    l3: "Размещаем блоки…",
+    l4: "Оживляем макет…",
+    r_title: "Ваш макет готов",
+    r_note: "Это примерный макет, собранный автоматически по вашим ответам. Настоящий дизайн я разработаю отдельно и полностью.",
+    r_redo: "Собрать заново",
+    p_n1: "Услуги", p_n2: "Цены", p_n3: "Контакты",
+    p_h: "{goal} — надёжный выбор в сфере «{niche}»",
+    p_sub: "Быстрый результат, надёжное качество и личный подход.",
+    p_cta: "Оставить заявку",
+    p_f1t: "Быстрый результат", p_f1: "Заметные изменения за короткий срок.",
+    p_f2t: "Надёжное качество", p_f2: "Каждый этап под контролем.",
+    p_f3t: "Доступная цена", p_f3: "Прозрачные и выгодные условия.",
     b_colors_hint: "Выбрано: {n} / минимум 3",
     b_niche: "Направление",
     b_niche_ph: "Например: стоматология, образование, интернет-магазин",
@@ -241,7 +271,115 @@ const closeBrief = () => dialog.close();
 document.getElementById("open-brief").addEventListener("click", openBrief);
 document.getElementById("brief-close").addEventListener("click", closeBrief);
 dialog.addEventListener("click", (e) => { if (e.target === dialog) closeBrief(); });
-dialog.addEventListener("close", () => document.body.classList.remove("lock"));
+dialog.addEventListener("close", () => {
+  document.body.classList.remove("lock");
+  buildId++;
+  showView("form");
+});
+
+// Maketni jonli yig'ish
+const buildBox = document.getElementById("brief-build");
+const loader = document.getElementById("loader");
+const loaderText = document.getElementById("loader-text");
+const bar = document.getElementById("bar");
+const result = document.getElementById("result");
+const resultMsg = document.getElementById("result-msg");
+const mock = document.getElementById("mock");
+let buildId = 0;
+let lastBrief = null;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const lum = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * f(n >> 16) + 0.7152 * f((n >> 8) & 255) + 0.0722 * f(n & 255);
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+const inkOn = (bg) => (lum(bg) > 0.35 ? "#111111" : "#ffffff");
+
+function showView(view) {
+  form.hidden = view !== "form";
+  buildBox.hidden = view === "form";
+  loader.hidden = view !== "loading";
+  result.hidden = view !== "result";
+  dialog.classList.toggle("wide", view === "result");
+}
+
+// Tanlangan ranglardan tema: 1-rang fon, fonga eng kontrastli rang aksent, qolgani kartalar.
+function makeTheme(ids) {
+  const cols = ids.map((id) => palette.find((c) => c.id === id).hex);
+  const bg = cols[0];
+  const rest = cols.slice(1);
+  const accent = rest.reduce((best, c) => (contrast(bg, c) > contrast(bg, best) ? c : best), rest[0]);
+  const card = rest.find((c) => c !== accent) || accent;
+  return { bg, ink: inkOn(bg), accent, accentInk: inkOn(accent), card, cardInk: inkOn(card) };
+}
+
+async function buildMock(id, brief) {
+  const tr = t[currentLang];
+  const th = makeTheme(brief.ids);
+  const brand = esc(cap(brief.niche));
+  const heading = tr.p_h.replace("{goal}", cap(brief.goal)).replace("{niche}", brief.niche);
+  mock.style.cssText = `--bg:${th.bg};--ink:${th.ink};--accent:${th.accent};--accent-ink:${th.accentInk};--card:${th.card};--card-ink:${th.cardInk}`;
+  mock.innerHTML = `
+    <div class="m-nav m-in"><b>${brand}</b><span>${tr.p_n1}</span><span>${tr.p_n2}</span><span>${tr.p_n3}</span></div>
+    <div class="m-hero">
+      <h3 class="m-h"></h3>
+      <p class="m-p m-in">${tr.p_sub}</p>
+      <span class="m-btn m-in">${tr.p_cta}</span>
+    </div>
+    <div class="m-cards">
+      ${[1, 2, 3].map((n) => `<div class="m-card m-in"><b>${tr["p_f" + n + "t"]}</b><p>${tr["p_f" + n]}</p></div>`).join("")}
+    </div>
+    <div class="m-foot m-in">© ${brand}</div>`;
+
+  const show = async (sel, ms) => {
+    for (const el of mock.querySelectorAll(sel)) {
+      if (id !== buildId) return false;
+      el.classList.add("on");
+      await sleep(ms);
+    }
+    return id === buildId;
+  };
+
+  if (!(await show(".m-nav", 450))) return;
+  const h = mock.querySelector(".m-h");
+  for (let i = 1; i <= heading.length; i++) {
+    if (id !== buildId) return;
+    h.textContent = heading.slice(0, i);
+    await sleep(28);
+  }
+  if (!(await show(".m-p", 350))) return;
+  if (!(await show(".m-btn", 400))) return;
+  if (!(await show(".m-card", 300))) return;
+  await show(".m-foot", 0);
+}
+
+async function startBuild(brief) {
+  const id = ++buildId;
+  const steps = ["l1", "l2", "l3", "l4"];
+  resultMsg.textContent = "";
+  resultMsg.classList.remove("ok");
+  showView("loading");
+  bar.style.transition = "none";
+  bar.style.width = "0%";
+  await sleep(30);
+  for (let i = 0; i < steps.length; i++) {
+    loaderText.textContent = t[currentLang][steps[i]];
+    bar.style.transition = "width 1.1s linear";
+    bar.style.width = `${((i + 1) / steps.length) * 100}%`;
+    await sleep(1150);
+    if (id !== buildId) return;
+  }
+  showView("result");
+  await buildMock(id, brief);
+}
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -252,14 +390,25 @@ form.addEventListener("submit", (e) => {
   if (selected.size < MIN_COLORS) { briefMsg.textContent = tr.b_err_colors; return; }
   if (!niche || !goal) { briefMsg.textContent = tr.b_err_fields; return; }
 
-  const colors = palette.filter((c) => selected.has(c.id)).map((c) => c[currentLang]).join(", ");
-  const text = `${tr.b_msg_head}\n\n${tr.b_msg_colors}: ${colors}\n${tr.b_msg_niche}: ${niche}\n${tr.b_msg_goal}: ${goal}`;
+  lastBrief = { ids: [...selected], niche, goal };
+  startBuild(lastBrief);
+});
+
+document.getElementById("redo-btn").addEventListener("click", () => {
+  buildId++;
+  showView("form");
+});
+
+document.getElementById("send-btn").addEventListener("click", () => {
+  const tr = t[currentLang];
+  const colors = lastBrief.ids.map((id) => palette.find((c) => c.id === id)[currentLang]).join(", ");
+  const text = `${tr.b_msg_head}\n\n${tr.b_msg_colors}: ${colors}\n${tr.b_msg_niche}: ${lastBrief.niche}\n${tr.b_msg_goal}: ${lastBrief.goal}`;
 
   // Telegram brauzer oynasini darhol (bosish paytida) ochamiz, matnni esa buferga nusxalaymiz.
   window.open(`https://t.me/AlishervichA?text=${encodeURIComponent(text)}`, "_blank", "noopener");
   navigator.clipboard?.writeText(text).catch(() => {});
-  briefMsg.textContent = tr.b_done;
-  briefMsg.classList.add("ok");
+  resultMsg.textContent = tr.b_done;
+  resultMsg.classList.add("ok");
 });
 
 document.querySelectorAll(".lang button").forEach((b) => {
