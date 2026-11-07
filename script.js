@@ -154,6 +154,16 @@ const sites = [
     url: "https://ilmaviya.vercel.app/",
     image: "images/site6.png",
   },
+  {
+    name: { uz: "MedDent — Oilaviy stomatologiya", ru: "MedDent — Семейная стоматология" },
+    desc: {
+      uz: "Yangi bemorlar uchun professional tish tozalash taklifi sahifasi.",
+      ru: "Страница предложения профессиональной чистки зубов для новых пациентов.",
+    },
+    tags: [{ uz: "Landing", ru: "Лендинг" }, { uz: "UZ / RU", ru: "UZ / RU" }],
+    url: "https://meddent.uz/",
+    image: "images/site7.png",
+  },
 ];
 
 // Jonli skrinshot: sayt o'zgarsa, rasm ham yangilanadi. Ishlamasa, image (saqlangan nusxa) chiqadi.
